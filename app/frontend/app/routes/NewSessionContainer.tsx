@@ -1,11 +1,11 @@
 import React from 'react';
 import {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRequireAuth } from "~/hooks/useRequireAuth";
 import InputField from '../components/InputField';
 import NavBar from '../components/NavBar';
 
 type FormField = 'feeling' | 'talkAbout' | 'avoidTopics' | 'conversationStyle' | 'chatLength' | 'sessionName' | 'recordOption';
-
 const NewSessionContainer: React.FC = () => {
   const requiredFields: FormField[] = [
     'feeling',
@@ -18,9 +18,9 @@ const NewSessionContainer: React.FC = () => {
   ];
   const navigate = useNavigate();
   const [showStartToolTip, setStartToolTip] = useState(false);
+  const { session, loading } = useRequireAuth();
   const [activeTab, setActiveTab] = useState('Sessions');
-
-  const [formData, setFormData] = useState<Record<FormField, string>>({
+  const [formData, setFormData] = useState({
     feeling: '',
     talkAbout: '',
     avoidTopics: '',
@@ -30,7 +30,30 @@ const NewSessionContainer: React.FC = () => {
     recordOption: '',
   });
 
-  
+  if (loading) {
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null; // Will redirect
+  }
+
+  if (loading) {
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null; // Will redirect
+  }
+
   const handleInputChange = (field: FormField, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -59,7 +82,7 @@ const NewSessionContainer: React.FC = () => {
             hasOptions={false}
             defaultText="Relaxed, stressed, sad, ..."
             value={formData.feeling}
-            onChange={(value) => handleInputChange('feeling', value)}
+            onChange={(value) => handleInputChange("feeling", value)}
           />
 
           <InputField
@@ -68,7 +91,7 @@ const NewSessionContainer: React.FC = () => {
             hasOptions={false}
             defaultText="Work, school, relationships, goals, fun facts, ..."
             value={formData.talkAbout}
-            onChange={(value) => handleInputChange('talkAbout', value)}
+            onChange={(value) => handleInputChange("talkAbout", value)}
           />
 
           <InputField
@@ -77,27 +100,30 @@ const NewSessionContainer: React.FC = () => {
             hasOptions={false}
             defaultText="Type in any topics you would like to avoid"
             value={formData.avoidTopics}
-            onChange={(value) => handleInputChange('avoidTopics', value)}
+            onChange={(value) => handleInputChange("avoidTopics", value)}
           />
 
           <InputField
             label="How should I talk to you right now?"
             isOptional={false}
             hasOptions={true}
-            options={['friend', 'acquaintance', 'mentor', 'stranger']}
+            options={["friend", "acquaintance", "mentor", "stranger"]}
             defaultText="Select one of the options"
             value={formData.conversationStyle}
-            onChange={(value) => handleInputChange('conversationStyle', value)}
+            onChange={(value) => handleInputChange("conversationStyle", value)}
           />
 
           <InputField
-          label="How long are we chatting for?"
-          isOptional={false}
-          hasOptions={true}
-          options={['I would like to fall asleep eventually', 'I want to stay up for a bit longer and chat!']}
-          defaultText="Select one of the options"
-          value={formData.chatLength}
-          onChange={(value) => handleInputChange('chatLength', value)}
+            label="How long are we chatting for?"
+            isOptional={false}
+            hasOptions={true}
+            options={[
+              "I would like to fall asleep eventually",
+              "I want to stay up for a bit longer and chat!",
+            ]}
+            defaultText="Select one of the options"
+            value={formData.chatLength}
+            onChange={(value) => handleInputChange("chatLength", value)}
           />
 
           <InputField
@@ -110,15 +136,16 @@ const NewSessionContainer: React.FC = () => {
           />
 
           <InputField
-          label="Would you like to record this session? Nothing will be recorded without your permission."
-          isOptional={false}
-          hasOptions={true}
-          options={['Yes, I would like to record this session for analysis purposes',
-                    'No, I would not like to save this session after it is over'
-          ]}
-          defaultText="Enter a descriptive name that will help you remember our chat!"
-          value={formData.recordOption}
-          onChange={(value) => handleInputChange('recordOption', value)}
+            label="Would you like to record this session? Nothing will be recorded without your permission."
+            isOptional={false}
+            hasOptions={true}
+            options={[
+              "Yes, I would like to record this session for analysis purposes",
+              "No, I would not like to save this session after it is over",
+            ]}
+            defaultText="Enter a descriptive name that will help you remember our chat!"
+            value={formData.recordOption}
+            onChange={(value) => handleInputChange("recordOption", value)}
           />
 
           <div className="flex justify-center pt-6">

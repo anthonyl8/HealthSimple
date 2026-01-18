@@ -1,12 +1,34 @@
-import React from 'react';
+import React from "react";
+import { useState } from 'react';
+import { useRequireAuth } from "~/hooks/useRequireAuth";
+
+import NavBar from "~/components/NavBar";
 
 const PastSessionsContainer: React.FC = () => {
-
-    return(
-        <div>
-            <h1>Placeholder for past sessions</h1>
-        </div>
+  const { session, loading } = useRequireAuth();
+  const [activeTab, setActiveTab] = useState('Past Sessions');
+  
+  if (loading) {
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
     );
+  }
 
-}
+  if (!session) {
+    return null; // Will redirect
+  }
+
+  return (
+    <div className="min-h-screen bg-teal-700 p-6">
+        <div className="max-w-2xl mx-auto">
+            <div className="mb-8">
+                <NavBar activeTab={activeTab} onTabChange={setActiveTab}/>
+            </div>
+        </div>
+    </div>
+  );
+};
+
 export default PastSessionsContainer;
