@@ -49,58 +49,60 @@ export default function MyComponent() {
     },
     onCommittedTranscript: async (data) => {
       console.log("Committed:", data.text);
-      const reqBody: SpeakRequest = {
-        user_text: data.text,
-        history: null,
-        b64_frame: b64,
-      };
+      if (data.text.length > 5) {
+        const reqBody: SpeakRequest = {
+          user_text: data.text,
+          history: null,
+          b64_frame: b64,
+        };
 
-      try {
-        if (scribe.isConnected) {
-          await Promise.resolve(scribe.disconnect());
-        }
+        try {
+          if (scribe.isConnected) {
+            await Promise.resolve(scribe.disconnect());
+          }
 
-        const response = await fetch(
-          "http://localhost:8000/intelligence/speak",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json", // Indicate the data type in the body
+          const response = await fetch(
+            "http://localhost:8000/intelligence/speak",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json", // Indicate the data type in the body
+              },
+              body: JSON.stringify(reqBody),
             },
-            body: JSON.stringify(reqBody),
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            `Speak request failed: ${response.status} ${response.statusText}`,
           );
-        }
 
-        const rawBlob = await response.blob();
-        const audioBlob = rawBlob.type
-          ? rawBlob
-          : new Blob([rawBlob], { type: "audio/mpeg" });
+          if (!response.ok) {
+            throw new Error(
+              `Speak request failed: ${response.status} ${response.statusText}`,
+            );
+          }
 
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
+          const rawBlob = await response.blob();
+          const audioBlob = rawBlob.type
+            ? rawBlob
+            : new Blob([rawBlob], { type: "audio/mpeg" });
 
-        await new Promise<void>((resolve, reject) => {
-          audio.onended = () => resolve();
-          audio.onerror = () => reject(new Error("Audio playback failed"));
-          audio.play().catch(reject);
-        });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
 
-        URL.revokeObjectURL(audioUrl);
-
-        if (scribeTokenRef.current) {
-          await scribe.connect({
-            token: scribeTokenRef.current,
-            microphone: microphoneConfig,
+          await new Promise<void>((resolve, reject) => {
+            audio.onended = () => resolve();
+            audio.onerror = () => reject(new Error("Audio playback failed"));
+            audio.play().catch(reject);
           });
+
+          URL.revokeObjectURL(audioUrl);
+
+          if (scribeTokenRef.current) {
+            await scribe.connect({
+              token: scribeTokenRef.current,
+              microphone: microphoneConfig,
+            });
+          }
+        } catch (error) {
+          console.error("Failed to fetch/play speak audio:", error);
         }
-      } catch (error) {
-        console.error("Failed to fetch/play speak audio:", error);
       }
     },
     onCommittedTranscriptWithTimestamps: (data) => {
