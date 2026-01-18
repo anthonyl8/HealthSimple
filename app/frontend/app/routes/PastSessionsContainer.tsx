@@ -17,7 +17,16 @@ const PastSessionsContainer: React.FC = () => {
   }
 
   if (!session) {
-    return null; // Will redirect
+    return (
+      <div className="min-h-screen bg-teal-700 p-6">
+        <div className="max-w-2xl mx-auto">
+            <div className="mb-8">
+                <NavBar activeTab={activeTab} onTabChange={setActiveTab}/>
+            </div>
+            <h1>No sessions created yet!</h1>
+        </div>
+    </div>
+    );
   }
 
   return (

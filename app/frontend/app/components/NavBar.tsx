@@ -10,9 +10,10 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({ activeTab = 'Home', onTabChange }) => {
   const navigate = useNavigate();
   const navLinks = [
-    { label: "Home", path: "/"},
+    { label: "Home", path: "/mainPage"},
     { label: "New Session", path: "/new-session"},
-    { label: "Past Sessions", path: "/past-sessions"}
+    { label: "Past Sessions", path: "/past-sessions"},
+    {label: "User Profile", path: "/user-profile"},
   ];
 
   return (
