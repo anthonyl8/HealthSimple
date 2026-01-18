@@ -48,7 +48,7 @@ class AgentService:
         wait=wait_exponential(multiplier=0.5, min=0.5, max=4),
         reraise=True,
     )
-    async def _send_message_stream(self, user_text: str, processed_features: dict):
+    async def _send_message_stream(self, user_text: str, emotion_state: str):
         """
         Internal method to call OpenAI Chat Completions with streaming.
         """
@@ -70,20 +70,22 @@ class AgentService:
         #     max_tokens=max_tokens,
         #     temperature=0.4
         # )
-        return run_conversation(user_text, processed_features)
+        stream = await run_conversation(user_text, emotion_state)
+        async for chunk in stream:
+            yield chunk
 
     async def llm_token_stream(
         self,
         user_text: str,
-        processed_features: dict
+        emotion_state: str
     ) -> AsyncIterator[str]:
         """
         Streams tokens from OpenAI and updates history.
         """
         try:
-            response_stream = await self._send_message_stream(
+            response_stream = self._send_message_stream(
                 user_text,
-                processed_features
+                emotion_state
             )
             
             full_response = ""
@@ -103,11 +105,11 @@ class AgentService:
             print(f"OpenAI Stream Error: {e}")
             raise LLMStreamError("Unexpected OpenAI streaming failure") from e
     
-    async def generate_audio_stream(self, user_text: str, processed_features: dict):
+    async def generate_audio_stream(self, user_text: str, emotion_state: str):
         """
         Generates audio stream from OpenAI text (Async).
         """
-        token_stream = self.llm_token_stream(user_text, processed_features)
+        token_stream = self.llm_token_stream(user_text, emotion_state)
         
         async for phrase in Utils.async_speech_chunks(token_stream):
             async for audio_chunk in ElevenLabsService.elevenlabs_stream(phrase):
@@ -333,7 +335,7 @@ Conversation:
     return response.output_text
 
 
-async def run_conversation(user_input: str, processed_features: dict):
+async def run_conversation(user_input: str, emotion_state: str):
     """
     Run the wellness agent in conversational mode.
     Reads from stdin if user_input is None.
@@ -351,7 +353,7 @@ async def run_conversation(user_input: str, processed_features: dict):
         
         with mcp_client:
             # Create agent
-            agent = create_wellness_agent(mcp_client)
+            agent = await create_wellness_agent(mcp_client)
             
             logger.info("Agent ready. Starting conversation...")
             
@@ -365,9 +367,9 @@ async def run_conversation(user_input: str, processed_features: dict):
                 })
 
                 # Agent response
-                response = agent(
+                response = await agent(
                     f"\n----START OF USER INPUT----\n{user_input}\n----END OF USER INPUT----\n"
-                    f"\n----START OF USER PHYSICAL DATA----\n{processed_features}\n----END OF USER PHYSICAL DATA----\n"
+                    f"\n----USER EMOTIONAL STATE BASED ON PHYSICAL APPEARANCE: {emotion_state}----\n"
                     )
 
                 conversation_log.append({
@@ -387,7 +389,7 @@ async def run_conversation(user_input: str, processed_features: dict):
             logger.info("Conversation ended")
             
         try:
-            summary = generate_session_summary(conversation_log, agent.model)
+            summary = await generate_session_summary(conversation_log, agent.model)
             print("\n— Session Reflection —\n")
             print(summary)
             response = (
