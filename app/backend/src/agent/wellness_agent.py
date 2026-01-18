@@ -13,10 +13,8 @@ from dotenv import load_dotenv
 import sys
 import time
 from supabase import create_client, Client
-# import sys
-# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# from ..core.security import get_current_user
+from backend.src.core.security import get_current_user
 
 url: str = os.environ.get("VITE_SUPABASE_URL")
 key: str = os.environ.get("VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY")
