@@ -189,7 +189,7 @@ Your final output is only the text response."""
     return agent
 
 
-def run_conversation(user_input: str = None):
+def run_conversation(user_input: str = None, processed_features: dict = None):
     """
     Run the wellness agent in conversational mode.
     Reads from stdin if user_input is None.
@@ -226,7 +226,7 @@ def run_conversation(user_input: str = None):
                     })
 
                     # Agent response
-                    response = agent(user_input)
+                    response = agent(f"\n----START OF USER INPUT----\n{user_input}\n----END OF USER INPUT----\n")
 
                     conversation_log.append({
                         "role": "assistant",
