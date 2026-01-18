@@ -1,19 +1,33 @@
-import { useState } from "react";
-import InputField from "../components/InputField";
-import NavBar from "../components/NavBar";
+import React from 'react';
+import {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRequireAuth } from "~/hooks/useRequireAuth";
+import InputField from '../components/InputField';
+import NavBar from '../components/NavBar';
 
+type FormField = 'feeling' | 'talkAbout' | 'avoidTopics' | 'conversationStyle' | 'chatLength' | 'sessionName' | 'recordOption';
 const NewSessionContainer: React.FC = () => {
+  const requiredFields: FormField[] = [
+    'feeling',
+    'talkAbout',
+    'avoidTopics',
+    'conversationStyle',
+    'chatLength',
+    'sessionName',
+    'recordOption'
+  ];
+  const navigate = useNavigate();
+  const [showStartToolTip, setStartToolTip] = useState(false);
   const { session, loading } = useRequireAuth();
-  const [activeTab, setActiveTab] = useState("Sessions");
+  const [activeTab, setActiveTab] = useState('Sessions');
   const [formData, setFormData] = useState({
-    feeling: "",
-    talkAbout: "",
-    avoidTopics: "",
-    conversationStyle: "",
-    chatLength: "",
-    sessionName: "",
-    recordOption: "",
+    feeling: '',
+    talkAbout: '',
+    avoidTopics: '',
+    conversationStyle: '',
+    chatLength:'',
+    sessionName:'',
+    recordOption: '',
   });
 
   if (loading) {
@@ -28,11 +42,31 @@ const NewSessionContainer: React.FC = () => {
     return null; // Will redirect
   }
 
-  const handleInputChange = (field: string, value: string) => {
+  if (loading) {
+    return (
+      <div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null; // Will redirect
+  }
+
+  const handleInputChange = (field: FormField, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleStartSession = () => {};
+  const handleStartSession = () => {
+    const isFormValid = requiredFields.every(field => formData[field].trim() !== '');
+    if (isFormValid) {
+      navigate("current-session")
+    } else {
+      setStartToolTip(true);
+      setTimeout(() => setStartToolTip(false), 2500);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-teal-700 p-6">
@@ -46,32 +80,32 @@ const NewSessionContainer: React.FC = () => {
             label="How are you currently feeling?"
             isOptional={false}
             hasOptions={false}
-            defaultText="relaxed, stressed, sad, ..."
+            defaultText="Relaxed, stressed, sad, ..."
             value={formData.feeling}
             onChange={(value) => handleInputChange("feeling", value)}
           />
 
           <InputField
             label="Anything on your mind that you would like to talk about?"
-            isOptional={true}
+            isOptional={false}
             hasOptions={false}
-            defaultText="work, school, relationships, goals, fun facts, ..."
+            defaultText="Work, school, relationships, goals, fun facts, ..."
             value={formData.talkAbout}
             onChange={(value) => handleInputChange("talkAbout", value)}
           />
 
           <InputField
             label="Anything that you don't want to talk about for this session?"
-            isOptional={true}
+            isOptional={false}
             hasOptions={false}
-            defaultText="type in any topic you would like to avoid"
+            defaultText="Type in any topics you would like to avoid"
             value={formData.avoidTopics}
             onChange={(value) => handleInputChange("avoidTopics", value)}
           />
 
           <InputField
             label="How should I talk to you right now?"
-            isOptional={true}
+            isOptional={false}
             hasOptions={true}
             options={["friend", "acquaintance", "mentor", "stranger"]}
             defaultText="Select one of the options"
@@ -93,12 +127,12 @@ const NewSessionContainer: React.FC = () => {
           />
 
           <InputField
-            label="What would you like to name this session?"
-            isOptional={true}
-            hasOptions={false}
-            defaultText="Enter a descriptive name that will help you remember our chat!"
-            value={formData.sessionName}
-            onChange={(value) => handleInputChange("sessionName", value)}
+          label="What would you like to name this session?"
+          isOptional={false}
+          hasOptions={false}
+          defaultText="Enter a descriptive name that will help you remember our chat!"
+          value={formData.sessionName}
+          onChange={(value) => handleInputChange('sessionName', value)}
           />
 
           <InputField
@@ -118,9 +152,15 @@ const NewSessionContainer: React.FC = () => {
             <button
               onClick={handleStartSession}
               className="px-12 py-3 bg-white text-teal-700 rounded-full font-medium hover:bg-teal-50 transition-colors shadow-md"
+              type="button"
             >
               Start Session
             </button>
+            {showStartToolTip && (
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-yellow-200 text-yellow-900 px-4 py-2 rounded shadow text-sm z-10">
+                    Please fill out all required fields before starting session
+                </div>
+            )}
           </div>
         </div>
       </div>
