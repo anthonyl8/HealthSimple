@@ -6,16 +6,10 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/sync")
-async def sync_user(auth_id: str = Depends(get_current_user)):
+async def sync_user(auth_id: str = Depends(get_current_user), email: str = "unknown"):
     """
     Ensures the Supabase user has a corresponding record in our 'profiles' table.
     """
-    auth_id = user["id"]
-    email = user.get("email") or "unknown"
-    
-    # Use authenticated client
-    client = get_authenticated_client(user["token"])
-
     # Check if profile exists
     response = supabase.table("profiles").select("*").eq("id", auth_id).execute()
 
@@ -24,9 +18,11 @@ async def sync_user(auth_id: str = Depends(get_current_user)):
         # Assuming 'profiles' table has 'id' which references auth.users(id)
         data = {
             "id": auth_id,
-            "email": "unknown",
-        }  # We might need email from token or request body
+            "email": email
+        }
         supabase.table("profiles").insert(data).execute()
         return {"status": "Profile created", "id": auth_id}
+    else:
+        supabase.table("profiles").update({"email": email}).eq("id", auth_id).execute()
 
-    return {"status": "Profile synced", "id": auth_id}
+    return {"status": "Profile synced", "id": auth_id, "email": email}
