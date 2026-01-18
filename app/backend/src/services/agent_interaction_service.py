@@ -39,6 +39,7 @@ class AgentService:
     def __init__(self, token: Optional[str] = None, history: Optional[List[Dict[str, str]]] = None):
         self.supabase = supabase
         self.client = aclient
+        self.user_id = token
         # OpenAI model name (e.g., "gpt-4o" or "gpt-4o-mini")
         self.model_name = "gpt-4o-mini" 
         self.chat_history: List[Dict[str, str]] = history if history else []
@@ -53,7 +54,7 @@ class AgentService:
         Internal method to call OpenAI Chat Completions with streaming.
         """
         # Call the strands agent conversation runner
-        async for chunk in run_conversation(user_text, emotion_state):
+        async for chunk in run_conversation(user_text, emotion_state, self.user_id):
             yield chunk
 
     async def llm_token_stream(
@@ -307,15 +308,15 @@ Conversation:
         for m in conversation_log
     )
     client = OpenAI(api_key=settings.OPENAI_API_KEY)
-    response = client.responses.create(
-        model=str(model),
-        input=summary_prompt+"\n"+formatted_convo
+    response = client.chat.completions.create(
+        model=model.get_config()["model_id"],
+        messages=[{"role": "user", "content": summary_prompt+"\n"+formatted_convo}]
     )
 
-    return response.output_text
+    return response.choices[0].message.content
 
 
-async def run_conversation(user_input: str, emotion_state: str) -> AsyncIterator[str]:
+async def run_conversation(user_input: str, emotion_state: str, user_id: Optional[str] = None) -> AsyncIterator[str]:
     """
     Run the wellness agent in conversational mode.
     Reads from stdin if user_input is None.
@@ -531,10 +532,13 @@ async def run_conversation(user_input: str, emotion_state: str) -> AsyncIterator
             summary = await generate_session_summary(conversation_log, agent.model)
             print("\n— Session Reflection —\n")
             print(summary)
-            # Use get_current_user() but handle potential auth context issues if running in background
+            # Use passed user_id if available
             try:
-                user_id = get_current_user()
-                supabase.table("sessions_info").insert({"note": summary, "user_id": user_id}).execute()
+                # If user_id is not provided, we can't save to specific user
+                if user_id:
+                    supabase.table("sessions_info").insert({"note": summary, "user_id": user_id}).execute()
+                else:
+                    logger.warning("No user_id provided, skipping session summary save to DB")
             except Exception as e:
                 logger.warning(f"Could not save session summary to DB: {e}")
 
