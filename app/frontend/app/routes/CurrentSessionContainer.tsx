@@ -2,11 +2,16 @@ import React from 'react';
 import { RecordPanelHost, useRecordPanel } from 'recordpanel';
 import RecordingComponent from '../components/RecordingComponent';
 import VideoRecorder from '../components/VideoRecorder';
+import ScreenshotTool from '../components/ScreenshotTool.jsx';
 
 const CurrentSessionContainer: React.FC = () => {
     
     return (
-        <VideoRecorder />
+        <div>
+            <ScreenshotTool />
+            <VideoRecorder />
+        </div>
+        
     );
 }
 
