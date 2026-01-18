@@ -1,5 +1,5 @@
 .DS_Store
-.env
+.env*
 /frontend/node_modules/
 /app/frontend/node_modules/
 node_modules/
@@ -9,5 +9,5 @@ frontend/package-lock.json
 frontend/package.json
 
 # React Router
-/frontend/.react-router/
-/frontend/build/
+app/frontend/.react-router/
+app/frontend/build/

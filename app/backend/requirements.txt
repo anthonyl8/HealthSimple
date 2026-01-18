@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+supabase
+python-jose[cryptography]
+httpx
+pydantic-settings
+python-multipart
+websockets
