@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from app.backend.src.routes import auth, session, intelligence, memory
-from app.backend.src.core.config import settings
+from backend.src.routes import auth, session, intelligence, memory
+from backend.src.core.config import settings
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -10,11 +11,8 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
 
-app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version="1.0.0",
-    lifespan=lifespan
-)
+
+app = FastAPI(title=settings.PROJECT_NAME, version="1.0.0", lifespan=lifespan)
 
 origins = [
     "http://localhost:3000",
@@ -33,6 +31,7 @@ app.include_router(auth.router)
 app.include_router(session.router)
 app.include_router(intelligence.router)
 app.include_router(memory.router)
+
 
 @app.get("/")
 async def root():

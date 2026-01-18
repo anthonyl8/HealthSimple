@@ -6,3 +6,5 @@ app/frontend/node_modules/
 # React Router
 app/frontend/.react-router/
 app/frontend/build/
+
+__pycache__/
