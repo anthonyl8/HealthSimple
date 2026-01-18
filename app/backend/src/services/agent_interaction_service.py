@@ -81,7 +81,7 @@ class AgentService:
         Streams tokens from OpenAI and updates history.
         """
         try:
-            response_stream = await self._send_message_stream(
+            response_stream = self._send_message_stream(
                 user_text,
                 processed_features
             )
