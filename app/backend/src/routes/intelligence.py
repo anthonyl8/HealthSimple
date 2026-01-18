@@ -67,7 +67,7 @@ def analyze_emotion_from_base64_image(image_base64: str) -> str:
     return emotion
     
 @router.post("/start")
-async def init_agent(auth_id: str = Depends(get_current_user)):
+async def init_agent(auth_id: str):
     global agent_service
     agent_service = AgentService(auth_id)
 

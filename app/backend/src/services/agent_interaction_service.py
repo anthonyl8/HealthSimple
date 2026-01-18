@@ -354,6 +354,7 @@ async def run_conversation(user_input: str, emotion_state: str):
         with mcp_client:
             # Create agent
             agent = await create_wellness_agent(mcp_client)
+            agent = await create_wellness_agent(mcp_client)
             
             logger.info("Agent ready. Starting conversation...")
             
