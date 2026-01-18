@@ -1,5 +1,4 @@
 import datetime
-import sys
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -36,6 +35,7 @@ async def agent_speak(request: SpeakRequest):
     # agent_service.run_conversation(request.user_text, processed_features)
     
     async def audio_stream():
+        global agent_service
         agent_service.chat_history = request.history if request.history else []
         # Call generate_audio_stream with the text string
         async for audio_chunk in agent_service.generate_audio_stream(request.user_text, processed_features):
@@ -70,42 +70,41 @@ async def analyze_features(features: dict):
     return processed_features
 
 # For Testing
-if __name__ == "__main__":
-    req = SpeakRequest(
-        user_text="hey, I'm feeling sad", 
-        history=[], 
-        features={
-            "blink_rate": 12,
-            "ear_mean": 0.62,
-            "jaw_tension": 0.01,
-            "breathing_rate": 15,
-            "breathing_amplitude": "high",
-            "facial_variance": 0.03,
-            "speaking": False,
-            "head_motion": "low",
-            "timestamp": "1:36PM EST on Oct 18, 2010",
-            "current_time": "1:40PM EST on Oct 18, 2010"
-        })
-    
-    import asyncio
-    from io import BytesIO
+req = SpeakRequest(
+    user_text="hey, I'm feeling sad", 
+    history=[], 
+    features={
+        "blink_rate": 12,
+        "ear_mean": 0.62,
+        "jaw_tension": 0.01,
+        "breathing_rate": 15,
+        "breathing_amplitude": "high",
+        "facial_variance": 0.03,
+        "speaking": False,
+        "head_motion": "low",
+        "timestamp": "1:36PM EST on Oct 18, 2010",
+        "current_time": "1:40PM EST on Oct 18, 2010"
+    })
 
-    async def collect_streaming_response(resp):
-        buffer = BytesIO()
+import asyncio
+from io import BytesIO
 
-        async for chunk in resp.body_iterator:
-            buffer.write(chunk)
+async def collect_streaming_response(resp):
+    buffer = BytesIO()
 
-        buffer.seek(0)
-        return buffer
-    
-    async def test_tts_save():
-        resp = agent_speak(req)
-        audio_bytes = await collect_streaming_response(resp)
+    async for chunk in resp.body_iterator:
+        buffer.write(chunk)
 
-        with open("test.mp3", "wb") as f:
-            f.write(audio_bytes.read())
-            
-    test_tts_save()
+    buffer.seek(0)
+    return buffer
+
+async def test_tts_save():
+    resp = agent_speak(req)
+    audio_bytes = await collect_streaming_response(resp)
+
+    with open("test.mp3", "wb") as f:
+        f.write(audio_bytes.read())
+        
+test_tts_save()
 
 
