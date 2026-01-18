@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { supabase } from "~/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 
-export default function Detection() {
+export default function App() {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,6 +31,11 @@ export default function Detection() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
   if (loading) {
     return (
       <div>
@@ -45,8 +50,12 @@ export default function Detection() {
 
   return (
     <div>
-      <h1>Detection</h1>
-      <p>This is the detection page. Implement your detection features here.</p>
+      <h1>App Dashboard</h1>
+      <p>Welcome, {session.user.email}!</p>
+      <p>This is your main app page. Implement your app features here.</p>
+      <button onClick={handleLogout}>
+        Sign Out
+      </button>
     </div>
   );
 }
