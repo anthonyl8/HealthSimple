@@ -1,9 +1,15 @@
-.env
+.DS_Store
+.env*
+/frontend/node_modules/
+/app/frontend/node_modules/
+node_modules/
+package-lock.json
+package.json
+frontend/package-lock.json
+frontend/package.json
 
-.venv
+# React Router
+app/frontend/.react-router/
+app/frontend/build/
 
-# Frontend
-frontend/node_modules
-frontend/dist
-frontend/.vite
-*.log
+__pycache__/
