@@ -1,8 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import InputField from '../components/InputField';
 import NavBar from '../components/NavBar';
 
+
 const NewSessionContainer: React.FC = () => {
+
   const [activeTab, setActiveTab] = React.useState('Sessions');
   const [formData, setFormData] = React.useState({
     feeling: '',
@@ -19,7 +22,7 @@ const NewSessionContainer: React.FC = () => {
   };
 
   const handleStartSession = () => {
-    console.log('Session started with data:', formData);
+    
   };
 
   return (
