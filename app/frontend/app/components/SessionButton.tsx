@@ -1,4 +1,4 @@
-import { useScribe } from "@elevenlabs/react";
+import { CommitStrategy, useScribe } from "@elevenlabs/react";
 
 const ScribeTokenUrl = "http://localhost:8000/scribe";
 
@@ -28,6 +28,8 @@ export default function MyComponent() {
 
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
+    languageCode: "en",
+    commitStrategy: CommitStrategy.VAD,
     onPartialTranscript: (data) => {
       console.log("Partial:", data.text);
     },
