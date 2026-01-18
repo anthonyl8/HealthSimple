@@ -7,5 +7,6 @@ export default [
   route("login", "routes/login.tsx"),
   route("new-session", "routes/NewSessionContainer.tsx"),
   route("past-sessions", "routes/PastSessionsContainer.tsx"),
-  route("new-session/current-session", "routes/CurrentSessionContainer.tsx")
+  route("new-session/current-session", "routes/CurrentSessionContainer.tsx"),
+  route("user-profile", "routes/UserProfileContainer.tsx")
 ] satisfies RouteConfig;
