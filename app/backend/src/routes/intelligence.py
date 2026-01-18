@@ -18,7 +18,7 @@ class SpeakRequest(BaseModel):
 agent_service: AgentService
     
 @router.post("/start")
-async def init_agent(auth_id: str = Depends(get_current_user)):
+async def init_agent(auth_id: str):
     global agent_service
     agent_service = AgentService(auth_id)
 
@@ -30,7 +30,7 @@ async def agent_speak(request: SpeakRequest):
     # If we want to support RLS we should probably add Depends(get_current_user) but 
     # to avoid changing API signature too much if it's public, we'll leave it as is 
     # or assume it's public. However, AgentService defaults to global supabase client if no token.
-    processed_features = analyze_features(request.features)
+    processed_features = await analyze_features(request.features)
     
     # agent_service.run_conversation(request.user_text, processed_features)
     

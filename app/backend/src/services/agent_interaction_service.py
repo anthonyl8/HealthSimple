@@ -70,7 +70,9 @@ class AgentService:
         #     max_tokens=max_tokens,
         #     temperature=0.4
         # )
-        return run_conversation(user_text, processed_features)
+        stream = await run_conversation(user_text, processed_features)
+        async for chunk in stream:
+            yield chunk
 
     async def llm_token_stream(
         self,
@@ -351,7 +353,7 @@ async def run_conversation(user_input: str, processed_features: dict):
         
         with mcp_client:
             # Create agent
-            agent = create_wellness_agent(mcp_client)
+            agent = await create_wellness_agent(mcp_client)
             
             logger.info("Agent ready. Starting conversation...")
             
