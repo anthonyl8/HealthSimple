@@ -8,7 +8,7 @@ from typing import Optional, List, Dict
 from backend.src.core.security import get_current_user
 from backend.src.services.agent import AgentService
 
-router = APIRouter(prefix="/intelligence", tags=["Intelligence"])'
+router = APIRouter(prefix="/intelligence", tags=["Intelligence"])
 
 class SpeakRequest(BaseModel):
     user_text: str
