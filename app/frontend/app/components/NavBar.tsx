@@ -13,6 +13,7 @@ const NavBar: React.FC<NavBarProps> = ({ activeTab = 'Home', onTabChange }) => {
     { label: "Home", path: "/mainPage"},
     { label: "New Session", path: "/new-session"},
     { label: "Past Sessions", path: "/past-sessions"},
+    {label: "Current Session", path:"new-session/current-session"},
     {label: "User Profile", path: "/user-profile"},
   ];
 
